@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -33,11 +34,19 @@ fun HomeScreen(
             .fillMaxSize()
             .background(Color.Cyan)
     ) {
-        HomeScreenContent(state.value)
+        for (item in state.value) {
+            key(item) {
+                HomeScreenContent(
+                    x = item.x,
+                    y = item.y,
+                    color = item.color
+                )
+            }
+        }
     }
 }
 
 @Composable
-private fun HomeScreenContent(state: Pair<Int, Int>) {
-    SimpleBox(state.first.dp, state.second.dp)
+private fun HomeScreenContent(x: Int, y: Int, color: Color) {
+    SimpleBox(x.dp, y.dp, color)
 }
