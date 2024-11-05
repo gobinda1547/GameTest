@@ -1,5 +1,6 @@
 package com.gobinda.gametest.screen.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,6 +28,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     private var diceMovingJob: Job? = null
 
     fun setScreenWidthHeight(width: Int, height: Int) {
+        Log.i("Gopal", "invoked at last")
         screenWidthInDp = width
         screenHeightInDp = height
 
@@ -48,6 +50,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         if (currentY < 0 || screenHeightInDp - 50 < currentY) {
             yFactor *= -1
         }
+        Log.i("Gopal", "$currentX, $currentY")
         _state.update { it.copy(first = currentX, second = currentY) }
     }
 }
