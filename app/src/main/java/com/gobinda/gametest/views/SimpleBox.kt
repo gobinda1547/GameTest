@@ -11,11 +11,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SimpleBox(xOffset: Dp, yOffset: Dp) {
+fun SimpleBox(xOffset: Dp, yOffset: Dp, color: Color) {
     Box(
         modifier = Modifier
             .offset(x = xOffset, y = yOffset)
             .size(50.dp)
-            .background(Color.Red)
+            .background(color)
     )
 }
