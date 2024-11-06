@@ -7,9 +7,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,7 +24,33 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     private var screenHeightInDp: Int = 0
 
     private val _state = MutableStateFlow<List<DiceObj>>(emptyList())
-    val state = _state.asStateFlow()
+    val state: Flow<List<DiceObj>> = callbackFlow {
+        Log.i("Gopal", "started flow collecting")
+
+        diceMovingJob?.cancel()
+        diceMovingJob = viewModelScope.launch(Dispatchers.Default) {
+            while (true) {
+                delay(1000 / 10)
+                Log.i("Gopal", "Updating")
+                _state.update { previousList ->
+                    previousList.map {
+                        moveDice(it)
+                    }
+                }
+            }
+        }
+
+        val collector = viewModelScope.launch {
+            _state.collect {
+                trySend(it)
+            }
+        }
+        awaitClose {
+            collector.cancel()
+            diceMovingJob?.cancel()
+            Log.i("Gopal", "trying to close the dice moving job")
+        }
+    }
 
     private var diceMovingJob: Job? = null
 
@@ -50,18 +78,6 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             )
         }
         _state.update { myList }
-
-        diceMovingJob?.cancel()
-        diceMovingJob = viewModelScope.launch(Dispatchers.Default) {
-            while (true) {
-                delay(1000 / 50)
-                _state.update { previousList ->
-                    previousList.map {
-                        moveDice(it)
-                    }
-                }
-            }
-        }
     }
 
     private fun moveDice(dice: DiceObj): DiceObj {
